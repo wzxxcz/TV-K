@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import io.knifer.freebox.constant.MessageCodes;
 import io.knifer.freebox.model.c2s.RegisterInfo;
@@ -344,7 +346,7 @@ public class WSService {
     }
 
     private List<History> getPlayHistory() {
-        return AppDatabase.get().getHistoryDao().findAll();
+        return History.get();
     }
 
     public void searchContent(String topicId, GetSearchContentDTO dto) {
@@ -393,9 +395,14 @@ public class WSService {
     }
 
     public void sendMovieCollection(String topicId) {
+        Integer cid = VodConfig.getCid();
+
         send(Message.oneWay(
                 MessageCodes.GET_MOVIE_COLLECTION_RESULT,
-                AppDatabase.get().getKeepDao().getVod(),
+                Keep.getVod()
+                        .stream()
+                        .filter(k -> Objects.equals(cid, k.getCid()))
+                        .collect(Collectors.toList()),
                 topicId
         ));
     }
